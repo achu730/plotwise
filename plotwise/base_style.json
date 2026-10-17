@@ -1,0 +1,65 @@
+{
+  "id": "base",
+  "name": "Plain default (no style guide uploaded)",
+  "source": "Built-in plain default, used until a style guide is uploaded.",
+  "figure": {
+    "width_mm": 120,
+    "aspect": 0.72,
+    "dpi": 300
+  },
+  "font": {
+    "family": "serif",
+    "names": [
+      "Times New Roman",
+      "Liberation Serif",
+      "DejaVu Serif"
+    ],
+    "size_pt": 10,
+    "label_size_pt": 11,
+    "tick_size_pt": 9,
+    "mathtext": "stix"
+  },
+  "axes": {
+    "linewidth": 1.0,
+    "ticks_direction": "in",
+    "ticks_all_sides": true,
+    "minor_ticks": true,
+    "grid": false,
+    "title": false
+  },
+  "labels": {
+    "unit_style": "brackets",
+    "example": "Time [s]",
+    "histogram_y_example": "Entries / bin"
+  },
+  "data": {
+    "marker": "o",
+    "markersize": 4,
+    "color": null,
+    "capsize": 2,
+    "elinewidth": 1.0
+  },
+  "lines": {
+    "linewidth": 1.5,
+    "colors": [
+      "#0072B2",
+      "#D55E00",
+      "#009E73",
+      "#CC79A7",
+      "#E69F00"
+    ],
+    "styles": [
+      "-",
+      "--",
+      ":",
+      "-."
+    ]
+  },
+  "legend": {
+    "frameon": false,
+    "fontsize_pt": 9,
+    "loc": "best"
+  },
+  "experiment_label": null,
+  "rules": []
+}

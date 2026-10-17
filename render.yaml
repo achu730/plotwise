@@ -1,0 +1,11 @@
+# Render Blueprint: New > Blueprint, pick the GitHub repo with this file. See HOSTING.md.
+services:
+  - type: web
+    name: plotwise
+    runtime: docker
+    plan: free
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: APP_PASSWORD
+        sync: false

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plotwise</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22%3E%3Ccircle cx=%2210%22 cy=%2210%22 r=%225%22 fill=%22%232f5bd3%22/%3E%3C/svg%3E">
+</head>
+<body>
+<header>
+  <div class="brand"><svg class="logo" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 17 L2 3 M2 17 L18 17" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="6" cy="12" r="1.8" fill="currentColor"/><circle cx="10" cy="9" r="1.8" fill="currentColor"/><circle cx="14" cy="6" r="1.8" fill="currentColor"/></svg> Plotwise <span class="tag">publication figures from analysed data, checked point by point</span></div>
+  <div class="hdr-right">
+    <span id="backend" class="pill" title="Which AI writes the plotting code">…</span>
+    <div class="sess-wrap">
+      <button class="ghost" id="sessBtn" aria-expanded="false" aria-controls="sessPanel">Saved sessions</button>
+      <div id="sessPanel" class="sess-panel" hidden>
+        <label class="muted small" for="sessName">Name this session</label>
+        <div class="sess-name"><input type="text" id="sessName" maxlength="80" placeholder="e.g. Tcc+ mass plot, LHCb style"><button type="button" id="sessSave">Save</button></div>
+        <div class="muted small" style="margin-top:12px">Open a saved session</div>
+        <ul id="sessList" class="sess-list"></ul>
+      </div>
+    </div>
+    <button class="ghost" id="newSession">New session</button>
+  </div>
+</header>
+
+<main>
+  <aside class="col left">
+    <section class="card" id="step1">
+      <h2><span class="num">1</span> Style guide</h2>
+      <p class="hint">Upload your journal's or collaboration's style guide. Plotwise reads it and lists the figure rules it will follow.</p>
+      <label class="drop" id="styleDrop">
+        <input type="file" id="styleFile" accept=".pdf,.docx,.tex,.txt,.md,.cls,.sty">
+        <span>Drop the style guide here or click to choose (DOCX, PDF, TeX, TXT, MD)</span>
+      </label>
+      <div id="styleInfo" class="info"></div>
+      <form id="noteForm" class="note-form">
+        <label class="muted small" for="noteText">Or describe the style you want (optional)</label>
+        <textarea id="noteText" rows="2" placeholder="e.g. Arial 8 pt, 85 mm wide, colour-blind palette, ticks inside on all sides"></textarea>
+        <button type="submit" class="small">Apply style</button>
+      </form>
+      <ul id="noteList" class="note-list"></ul>
+      <div id="styleNow" class="style-now"></div>
+    </section>
+
+    <section class="card" id="step2">
+      <h2><span class="num">2</span> Previous plotting code or figures</h2>
+      <p class="hint">Optional. Add scripts you plotted with before (Python, notebooks, ROOT macros, R, MATLAB) or figures you made (PNG, JPG, SVG, PDF). Plotwise copies their colours, fonts, sizes and markers.</p>
+      <label class="drop" id="refDrop">
+        <input type="file" id="refFile" multiple accept=".py,.ipynb,.c,.cc,.cpp,.cxx,.C,.h,.r,.R,.m,.jl,.txt,.png,.jpg,.jpeg,.gif,.webp,.svg,.pdf">
+        <span>Drop scripts or figures here (several at once is fine)</span>
+      </label>
+      <ul id="refList" class="ref-list"></ul>
+    </section>
+
+    <section class="card" id="step3">
+      <h2><span class="num">3</span> Data</h2>
+      <p class="hint">Your analysed results as .csv or .xlsx. Plotwise never changes this file.</p>
+      <label class="drop" id="dataDrop">
+        <input type="file" id="dataFile" accept=".csv,.tsv,.txt,.xlsx,.xls,.xlsm">
+        <span>Drop data here (.csv, .xlsx)</span>
+      </label>
+      <div id="dataInfo" class="info"></div>
+    </section>
+
+    <section class="card" id="step7">
+      <h2><span class="num">7</span> Export</h2>
+      <div class="exports" id="exports">
+        <a data-f="figure.pdf" class="btn">PDF for LaTeX</a>
+        <a data-f="figure.png" class="btn">PNG</a>
+        <a data-f="figure.svg" class="btn">SVG</a>
+        <a data-f="inspector.html" class="btn">Inspector</a>
+        <a id="logDl" class="btn">AI log</a>
+        <a id="zipDl" class="btn primary">Everything (.zip)</a>
+      </div>
+      <pre class="latex" id="latex">\includegraphics[width=\linewidth]{figure.pdf}</pre>
+      <details class="gh" id="ghBox">
+        <summary>Save to your GitHub (optional)</summary>
+        <p class="hint" style="margin-top:6px">Puts the code, figure, checks, AI log and a manifest of SHA-256 hashes in your own repository as one commit, so anyone can trace the figure back to its code and data.</p>
+        <label class="fld">Repository <input type="text" id="ghRepo" placeholder="owner/name, e.g. achu730/lhcb-figures" autocomplete="off"></label>
+        <div class="fld2">
+          <label class="fld">Branch <input type="text" id="ghBranch" placeholder="default branch" autocomplete="off"></label>
+          <label class="fld">Folder <input type="text" id="ghFolder" autocomplete="off"></label>
+        </div>
+        <label class="fld">Access token <input type="password" id="ghToken" placeholder="github_pat_…" autocomplete="off"></label>
+        <div class="muted small">Make one at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub › Settings › Fine-grained tokens</a>: under Repository access pick <b>Only select repositories</b> and your repository, then under Permissions add <b>Contents</b> set to <b>Read and write</b>. Plotwise uses it for this upload only and never saves it.</div>
+        <label class="chk"><input type="checkbox" id="ghRemember"> Remember the token in this browser</label>
+        <label class="chk"><input type="checkbox" id="ghData"> Include the data file (leave off to keep unpublished data private)</label>
+        <button type="button" id="ghSend" class="primary" style="margin-top:6px">Save to GitHub</button>
+        <div id="ghResult" class="small" style="margin-top:8px"></div>
+      </details>
+    </section>
+  </aside>
+
+  <section class="col center">
+    <div class="card figcard">
+      <div class="figbar">
+        <div id="versions" class="versions"></div>
+        <div class="figactions">
+          <button id="fmtBtn" class="ghost" disabled aria-expanded="false" aria-controls="fmt">Format axes</button>
+          <button id="openInspector" class="ghost" disabled>Inspect points ↗</button>
+          <button id="inject" class="ghost danger" disabled title="Test the checker: secretly alter the data inside the plot code and see if it is caught">Inject AI mistake</button>
+        </div>
+      </div>
+      <div class="figwrap" id="figwrap">
+        <div class="empty" id="empty">
+          <b>4 · Plot from a sentence</b><br>
+          Load a style and data, then type what you want, for example<br>
+          <code>y axis (y displacement) vs x axis (time)</code>
+        </div>
+        <img id="fig" alt="current figure" title="Click a point to see its values">
+        <div id="ring" class="ring" hidden></div>
+        <div id="pop" class="pop" hidden></div>
+        <div class="busy" id="busy"><div class="spinner"></div><span id="busyText">Claude is writing the plot code…</span></div>
+      </div>
+      <form id="fmt" class="fmt" hidden>
+        <div class="fmt-grid">
+          <fieldset><legend>X axis</legend>
+            <label>Title <input type="text" name="x.label"></label>
+            <div class="two"><label>Minimum <input type="text" name="x.min" inputmode="decimal"></label><label>Maximum <input type="text" name="x.max" inputmode="decimal"></label></div>
+            <label>Tick spacing <input type="text" name="x.step" inputmode="decimal" placeholder="automatic"></label>
+            <label class="chk"><input type="checkbox" name="x.log"> Logarithmic scale</label>
+            <div class="muted small" data-preview="x"></div>
+          </fieldset>
+          <fieldset><legend>Y axis</legend>
+            <label>Title <input type="text" name="y.label"></label>
+            <div class="two"><label>Minimum <input type="text" name="y.min" inputmode="decimal"></label><label>Maximum <input type="text" name="y.max" inputmode="decimal"></label></div>
+            <label>Tick spacing <input type="text" name="y.step" inputmode="decimal" placeholder="automatic"></label>
+            <label class="chk"><input type="checkbox" name="y.log"> Logarithmic scale</label>
+            <div class="muted small" data-preview="y"></div>
+          </fieldset>
+          <fieldset><legend>Chart</legend>
+            <label id="fmtPanelWrap" hidden>Panel <select name="axes"></select></label>
+            <label>Legend <select name="legend">
+              <option value="keep">As the code sets it</option><option value="best">Best place</option>
+              <option value="upper right">Top right</option><option value="upper left">Top left</option>
+              <option value="lower right">Bottom right</option><option value="lower left">Bottom left</option>
+              <option value="center right">Middle right</option><option value="center left">Middle left</option>
+              <option value="upper center">Top centre</option><option value="lower center">Bottom centre</option>
+              <option value="none">No legend</option></select></label>
+            <label class="chk"><input type="checkbox" name="grid"> Gridlines</label>
+          </fieldset>
+          <fieldset><legend>Trendline (fit)</legend>
+            <label>Type <select name="fit.kind">
+              <option value="none">None</option><option value="linear">Linear</option><option value="poly">Polynomial</option>
+              <option value="exp">Exponential</option><option value="log">Logarithmic</option><option value="power">Power</option>
+              <option value="gauss">Gaussian (peak)</option></select></label>
+            <label data-poly>Order <select name="fit.degree"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+            <label>Data series <select name="fit.series"></select></label>
+            <label class="chk"><input type="checkbox" name="fit.eq"> Show the equation on the chart</label>
+            <div class="two"><label>Fit from x = <input type="text" name="fit.lo" inputmode="decimal" placeholder="first point"></label><label>to x = <input type="text" name="fit.hi" inputmode="decimal" placeholder="last point"></label></div>
+          </fieldset>
+        </div>
+        <div class="fmt-actions"><span class="muted small">Set by hand, no AI. Each change becomes a new version and is checked like any other.</span>
+          <span><button type="button" class="ghost" id="fmtReset">Reset</button> <button type="submit" class="primary">Apply</button></span></div>
+      </form>
+    </div>
+    <div class="card chat">
+      <div id="thread" class="thread"></div>
+      <form id="chatForm" class="chatform">
+        <input id="chatInput" autocomplete="off" placeholder="4 · Describe the plot   ·   5 · then edit by chatting: “log y axis”, “add a linear fit”, “use cm”">
+        <button type="submit" class="primary">Send</button>
+      </form>
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <aside class="col right">
+    <div class="tabs">
+      <button class="tab active" data-tab="checks">Checks</button>
+      <button class="tab" data-tab="spot">6 · Spot check</button>
+      <button class="tab" data-tab="log">AI log</button>
+      <button class="tab" data-tab="code">Code</button>
+    </div>
+    <section class="card tabpane" id="tab-checks"><div class="muted">No figure yet.</div></section>
+    <section class="card tabpane hidden" id="tab-spot">
+      <p class="hint">Plotwise picks the 2nd point plus random ones. Compare each with your own analysis and confirm or flag it. Your answers go into the log.</p>
+      <button id="spotPick" class="primary" disabled>Pick points to check</button>
+      <div id="spotList"></div>
+    </section>
+    <section class="card tabpane hidden terminal" id="tab-log"></section>
+    <section class="card tabpane hidden" id="tab-code">
+      <div class="codebar"><span class="muted small" id="codeInfo">The plotting code for the figure shown.</span>
+        <span><button type="button" class="ghost small" id="codeCopy">Copy</button> <a class="btn ghost small" id="codeDl">Download .py</a></span></div>
+      <div class="codewrap"><pre class="gutter" id="codeLines" aria-hidden="true"></pre><pre id="code" class="code"></pre></div>
+    </section>
+  </aside>
+</main>
+<div id="toast"></div>
+<div id="passGate" class="pass-gate" hidden>
+  <form id="passForm" class="card">
+    <h2>This Plotwise is private</h2>
+    <p class="hint">Type the password you were given. It is kept in this browser.</p>
+    <input type="password" id="passInput" autocomplete="current-password" aria-label="Password">
+    <div id="passMsg" class="small" style="color:var(--bad);min-height:1.2em;margin-top:4px"></div>
+    <button type="submit" class="primary">Open Plotwise</button>
+  </form>
+</div>
+<script src="/static/texttools.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
