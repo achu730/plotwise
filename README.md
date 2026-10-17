@@ -1,13 +1,3 @@
----
-title: Plotwise
-emoji: 📈
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
-short_description: Publication figures from data, checked point by point
----
 
 # Plotwise
 
